@@ -34,58 +34,7 @@ st.markdown("""
 }
 [data-testid="stHeader"] { background: transparent; }
 
-/* ── Auth card ── */
-.auth-card {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 20px;
-    padding: 36px 32px;
-    max-width: 420px;
-    margin: 40px auto;
-    backdrop-filter: blur(12px);
-}
-.auth-title {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 4px;
-}
-.auth-heading {
-    text-align: center;
-    color: #fff;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-.auth-sub {
-    text-align: center;
-    color: rgba(255,255,255,0.5);
-    font-size: 0.88rem;
-    margin-bottom: 24px;
-}
-
-/* ── Chat header ── */
-.chat-header {
-    background: linear-gradient(90deg, #6c63ff, #48cfad);
-    border-radius: 16px;
-    padding: 16px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-}
-.chat-header-left { display: flex; align-items: center; gap: 12px; }
-.chat-header h1   { color: #fff; font-size: 1.3rem; margin: 0; }
-.chat-header p    { color: rgba(255,255,255,0.8); font-size: 0.78rem; margin: 0; }
-.user-pill {
-    background: rgba(255,255,255,0.2);
-    border-radius: 20px;
-    padding: 6px 14px;
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-/* ── Message bubbles ── */
+/* ── Topic buttons ── */
 .msg-bot {
     background: rgba(255,255,255,0.08);
     border-radius: 18px 18px 18px 4px;
@@ -151,8 +100,8 @@ st.markdown("""
     margin-top: 2px;
 }
 
-/* ── Topic buttons ── */
-.stButton > button {
+/* ── Message bubbles ── */
+.msg-bot {
     background: rgba(108,99,255,0.25) !important;
     border: 1px solid rgba(108,99,255,0.5) !important;
     color: #c4bfff !important;
@@ -165,18 +114,6 @@ st.markdown("""
 .stButton > button:hover {
     background: rgba(108,99,255,0.55) !important;
     color: #fff !important;
-}
-
-/* ── Primary button (login/signup) ── */
-.primary-btn > button {
-    background: linear-gradient(135deg,#6c63ff,#48cfad) !important;
-    border: none !important;
-    color: #fff !important;
-    border-radius: 12px !important;
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    width: 100% !important;
-    padding: 12px !important;
 }
 
 /* ── Inputs ── */
@@ -273,38 +210,38 @@ def render_user_message(text: str):
 # ─────────────────────────────────────────────────────────────
 
 def page_login():
-    st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-    st.markdown('<div class="auth-title">🧮</div>', unsafe_allow_html=True)
-    st.markdown('<div class="auth-heading">Welcome Back</div>', unsafe_allow_html=True)
-    st.markdown('<div class="auth-sub">Log in to continue learning</div>', unsafe_allow_html=True)
+    # Centre the form in a narrow column
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown("""
+        <div style="text-align:center;margin-bottom:24px;">
+            <div style="font-size:3rem;">🧮</div>
+            <div style="font-size:1.5rem;font-weight:700;color:#fff;margin:8px 0 4px;">Welcome Back</div>
+            <div style="font-size:0.88rem;color:rgba(255,255,255,0.5);">Log in to continue learning</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    email    = st.text_input("Email",    placeholder="you@example.com", key="login_email")
-    password = st.text_input("Password", placeholder="••••••••",        key="login_password", type="password")
+        email    = st.text_input("Email",    placeholder="you@example.com", key="login_email")
+        password = st.text_input("Password", placeholder="••••••••",        key="login_password", type="password")
 
-    st.markdown('<div class="primary-btn">', unsafe_allow_html=True)
-    if st.button("Log In", key="login_btn", use_container_width=True):
-        if not email or not password:
-            st.error("Please fill in all fields.")
-        else:
-            result = login(email, password)
-            if result["ok"]:
-                st.session_state.token    = result["token"]
-                st.session_state.user     = result["user"]
-                st.session_state.messages = []
-                st.session_state.page     = "chat"
-                st.rerun()
+        if st.button("Log In", key="login_btn", use_container_width=True):
+            if not email or not password:
+                st.error("Please fill in all fields.")
             else:
-                st.error(result["error"])
-    st.markdown('</div>', unsafe_allow_html=True)
+                result = login(email, password)
+                if result["ok"]:
+                    st.session_state.token    = result["token"]
+                    st.session_state.user     = result["user"]
+                    st.session_state.messages = []
+                    st.session_state.page     = "chat"
+                    st.rerun()
+                else:
+                    st.error(result["error"])
 
-    st.markdown("---")
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("Don't have an account? Sign up →", key="go_signup"):
+        st.markdown("<div style='text-align:center;margin-top:16px;color:rgba(255,255,255,0.45);font-size:0.87rem;'>Don't have an account?</div>", unsafe_allow_html=True)
+        if st.button("Sign up →", key="go_signup", use_container_width=True):
             st.session_state.page = "signup"
             st.rerun()
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -312,51 +249,50 @@ def page_login():
 # ─────────────────────────────────────────────────────────────
 
 def page_signup():
-    st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-    st.markdown('<div class="auth-title">🧮</div>', unsafe_allow_html=True)
-    st.markdown('<div class="auth-heading">Create Account</div>', unsafe_allow_html=True)
-    st.markdown('<div class="auth-sub">Start solving math problems step by step</div>', unsafe_allow_html=True)
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown("""
+        <div style="text-align:center;margin-bottom:24px;">
+            <div style="font-size:3rem;">🧮</div>
+            <div style="font-size:1.5rem;font-weight:700;color:#fff;margin:8px 0 4px;">Create Account</div>
+            <div style="font-size:0.88rem;color:rgba(255,255,255,0.5);">Start solving math problems step by step</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    name     = st.text_input("Full Name", placeholder="John Doe",          key="signup_name")
-    email    = st.text_input("Email",     placeholder="you@example.com",   key="signup_email")
-    password = st.text_input("Password",  placeholder="Min. 6 characters", key="signup_password", type="password")
+        name     = st.text_input("Full Name", placeholder="John Doe",          key="signup_name")
+        email    = st.text_input("Email",     placeholder="you@example.com",   key="signup_email")
+        password = st.text_input("Password",  placeholder="Min. 6 characters", key="signup_password", type="password")
 
-    # Password strength
-    if password:
-        strength = sum([
-            len(password) >= 6,
-            len(password) >= 10,
-            bool(re.search(r"[A-Z]", password)),
-            bool(re.search(r"[0-9]", password)),
-            bool(re.search(r"[^A-Za-z0-9]", password)),
-        ])
-        labels = ["", "Weak 🔴", "Fair 🟠", "Good 🟡", "Strong 🟢", "Very Strong 💪"]
-        st.caption(f"Password strength: **{labels[strength]}**")
+        # Password strength indicator
+        if password:
+            strength = sum([
+                len(password) >= 6,
+                len(password) >= 10,
+                bool(re.search(r"[A-Z]", password)),
+                bool(re.search(r"[0-9]", password)),
+                bool(re.search(r"[^A-Za-z0-9]", password)),
+            ])
+            labels = ["", "Weak 🔴", "Fair 🟠", "Good 🟡", "Strong 🟢", "Very Strong 💪"]
+            st.caption(f"Password strength: **{labels[strength]}**")
 
-    st.markdown('<div class="primary-btn">', unsafe_allow_html=True)
-    if st.button("Create Account", key="signup_btn", use_container_width=True):
-        if not name or not email or not password:
-            st.error("Please fill in all fields.")
-        else:
-            result = signup(name, email, password)
-            if result["ok"]:
-                st.session_state.token    = result["token"]
-                st.session_state.user     = result["user"]
-                st.session_state.messages = []
-                st.session_state.page     = "chat"
-                st.rerun()
+        if st.button("Create Account", key="signup_btn", use_container_width=True):
+            if not name or not email or not password:
+                st.error("Please fill in all fields.")
             else:
-                st.error(result["error"])
-    st.markdown('</div>', unsafe_allow_html=True)
+                result = signup(name, email, password)
+                if result["ok"]:
+                    st.session_state.token    = result["token"]
+                    st.session_state.user     = result["user"]
+                    st.session_state.messages = []
+                    st.session_state.page     = "chat"
+                    st.rerun()
+                else:
+                    st.error(result["error"])
 
-    st.markdown("---")
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("Already have an account? Log in →", key="go_login"):
+        st.markdown("<div style='text-align:center;margin-top:16px;color:rgba(255,255,255,0.45);font-size:0.87rem;'>Already have an account?</div>", unsafe_allow_html=True)
+        if st.button("Log in →", key="go_login", use_container_width=True):
             st.session_state.page = "login"
             st.rerun()
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────
